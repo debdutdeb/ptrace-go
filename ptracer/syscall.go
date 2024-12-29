@@ -41,18 +41,16 @@ func (w *noopSyscall) ThirdArgument() interface{} {
 	return nil
 }
 
-func (r *remoteTrace) parseSyscall(registers unix.PtraceRegsAmd64) {
-	if !r.tracing[registers.Orig_rax] { // if not intentionally tracing then skip all unnecessary data transfers over channels
+func (r *remoteTracer) parseSyscall(registers unix.PtraceRegsAmd64) {
+	if !r.shared.tracing[registers.Orig_rax] { // if not intentionally tracing then skip all unnecessary data transfers over channels
 		r.iterate()
 		return
 	}
 
-	r.err <- nil
-
 	switch registers.Orig_rax {
 	case syscall.SYS_WRITE:
-		r.data <- &WriteSyscall{regs: registers, pid: r.pid}
+		r.dataChan <- &WriteSyscall{regs: registers, pid: r.pid}
 	default: // shouldn't hit if tracing one of the supported ones
-		r.data <- &noopSyscall{}
+		r.dataChan <- &noopSyscall{}
 	}
 }
