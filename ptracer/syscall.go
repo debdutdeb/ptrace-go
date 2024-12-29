@@ -41,7 +41,7 @@ func (w *noopSyscall) ThirdArgument() interface{} {
 	return nil
 }
 
-func (r *remoteTrace) parseSyscall(registers unix.PtraceRegsAmd64) {
+func (r *remoteTracer) parseSyscall(registers unix.PtraceRegsAmd64) {
 	if !r.tracing[registers.Orig_rax] { // if not intentionally tracing then skip all unnecessary data transfers over channels
 		r.iterate()
 		return
